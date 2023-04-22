@@ -79,7 +79,7 @@ def generate_other_images(file_path, n, size):
 
 def generate_improved_image(improved_file_name, raw_prompt, size):
     make_prompt(raw_prompt)[1][0]
-    improved_prompt = f"{make_prompt(raw_prompt)[1][0]}を含めた{raw_prompt}  "
+    improved_prompt = f"{make_prompt(raw_prompt)[1][0]}で{raw_prompt}  "
     improved_prompt = make_prompt(improved_prompt)[0]
     image_generator(improved_file_name, 1, improved_prompt, size)
 
