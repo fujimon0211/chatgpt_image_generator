@@ -12,6 +12,8 @@ from dotenv import load_dotenv
 openai.organization = st.secrets['ChatGPT_organization_key']
 openai.api_key = st.secrets['ChatGPT_API_key']
 
+prompt_list = []
+
 
 def get_session():
     ctx = get_report_ctx()
@@ -39,6 +41,7 @@ def image_generator(file_name, n, raw_prompt, size):
         ],
     )
     prompt = edit_prompt["choices"][0]["message"]["content"]
+    prompt_list.append(raw_prompt)
     request = openai.Image.create(
         prompt=prompt,
         n=n,
@@ -67,8 +70,9 @@ def generate_other_images(file_path, n, size):
         counter += 1
     return images_url_list, image_data, images
 
+
 def generate_improved_image(improved_file_name, raw_prompt, size):
-    improved_prompt = f"An improved and clearer image of {raw_prompt}"
+    improved_prompt = f"transform, change, add or improve from {prompt_list[-1]} to {raw_prompt}"
     image_generator(improved_file_name, 1, improved_prompt, size)
 
 
@@ -96,9 +100,10 @@ if st.button('画像生成'):
 
 if 'generated_images' in st.session_state:
     if st.button('改善された画像を生成'):
-        improved_images_url_list, improved_image_data = generate_improved_image(
-            st.session_state.generated_images[-1], 1, size)
-        st.image(improved_image_data[0],
-                 caption="改善された画像", use_column_width=True)
+        for i in range(1, n+1):
+            improved_images_url_list, improved_image_data = generate_improved_image(
+                f'image{i}.png', 1, size)
+            st.image(f'image{i}.png',
+                     caption="改善された画像", use_column_width=True)
 else:
     st.session_state.generated_images = []
