@@ -51,9 +51,9 @@ def image_generator(file_name, n, raw_prompt, size):
         f.write(image_data)
 
 
-def generate_other_images(file_path, n, size):
+def generate_other_images(file_name, n, size):
     various_requests = openai.Image.create_variation(
-        image=open(file_path, "rb"),
+        image=open(file_name, "rb"),
         n=n,
         size=size
     )
@@ -63,13 +63,12 @@ def generate_other_images(file_path, n, size):
     image_data = []
     for image in images:
         images_url_list.append(image['url'])
-        image_data.append(requests.get(images_url_list[counter]).content)
+        response = requests.get(images_url_list[counter])
+        with open(f'image{counter+1}.png', 'wb') as f:
+            f.write(response.content)
         counter += 1
     return images_url_list, image_data, images
 
-def generate_improved_image(improved_file_name, raw_prompt, size):
-    improved_prompt = f"An improved and clearer image of {raw_prompt}"
-    image_generator(improved_file_name, 1, improved_prompt, size)
 
 
 size_box = ['256x256', '512x512', '1024x1024']
