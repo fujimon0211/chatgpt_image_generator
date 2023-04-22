@@ -83,12 +83,10 @@ file_name = st.text_input("ファイル名を入れてください", "")
 n = st.number_input('生成したい画像の数を入力してください(1~20)', 1, 20)
 size = st.selectbox('生成する画像のサイズを選んでください', size_box)
 
-session = get_session()
-
 if st.button('画像生成'):
     col = st.columns(n)
     image_generator(file_name, 1, raw_prompt, size)
-    images_url_list, image_data, images = generate_other_images(
+    images_url_list, image_data, image = generate_other_images(
         file_name, n, size)
     counter = 0
     for i in range(1, n+1):
@@ -97,14 +95,13 @@ if st.button('画像生成'):
             st.image(f'image{i}.png', caption=f'サンプル{i}',
                      use_column_width=True)
             counter += 1
+    st.session_state.generated_images = images_url_list
 
-    session.improved_image_generated = False
-
-if not session.improved_image_generated:
+if 'generated_images' in st.session_state:
     if st.button('改善された画像を生成'):
-        improved_file_name = f"improved_{file_name}"
-        generate_improved_image(improved_file_name, raw_prompt, size)
-        st.image(improved_file_name, caption='改善された画像', use_column_width=True)
-        session.improved_image_generated = True
+        improved_images_url_list, improved_image_data = generate_improved_images(
+            st.session_state.generated_images[-1], 1)
+        st.image(improved_image_data[0],
+                 caption="改善された画像", use_column_width=True)
 else:
-    st.write("改善された画像が既に生成されました。")
+    st.session_state.generated_images = []
