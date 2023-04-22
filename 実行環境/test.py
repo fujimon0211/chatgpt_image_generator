@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 openai.organization = st.secrets['ChatGPT_organization_key']
 openai.api_key = st.secrets['ChatGPT_API_key']
 
-
+prompt_list=[]
 
 
 def get_session():
@@ -24,25 +24,27 @@ def get_session():
         session_info.improved_image_generated = False
 
     return session_info
-
-prompt_list = []
-def image_generator(file_name, n, raw_prompt, size):
+def make_prompt(raw_prompt):
     edit_prompt = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-                "role": "system",
-                "content": "Please translate the input in Japanese into English and output it in an easily understandable form as a prompt for image generation."
-            },
-            {
-                "role": "user",
-                "content": raw_prompt
-            },
-        ],
-    )
-
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Please translate the input in Japanese into English and output it in an easily understandable form as a prompt for image generation."
+                },
+                {
+                    "role": "user",
+                    "content": raw_prompt
+                },
+            ],
+        )
     prompt = edit_prompt["choices"][0]["message"]["content"]
     prompt_list.append(prompt)
+    return prompt,prompt_list
+def image_generator(file_name, n, raw_prompt, size):
+    prompt=make_prompt(raw_prompt)[0]
+
+    
     request = openai.Image.create(
         prompt=prompt,
         n=n,
@@ -53,8 +55,7 @@ def image_generator(file_name, n, raw_prompt, size):
     image_data = requests.get(image_data_url).content
     with open(file_name, "wb") as f:
         f.write(image_data)
-    return prompt_list    
-
+    
 
 def generate_other_images(file_path, n, size):
     various_requests = openai.Image.create_variation(
@@ -74,7 +75,7 @@ def generate_other_images(file_path, n, size):
 
 
 def generate_improved_image(improved_file_name, raw_prompt, size,prompt_list):
-    improved_prompt = f"transform, change, add or improve from {prompt_list} to {raw_prompt}"
+    improved_prompt = f"transform, change, add or improve from {make_prompt(raw_prompt)[1]} to {raw_prompt}"
     image_generator(improved_file_name, 1, improved_prompt, size)
 
 
