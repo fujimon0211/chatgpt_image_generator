@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 openai.organization = st.secrets['ChatGPT_organization_key']
 openai.api_key = st.secrets['ChatGPT_API_key']
 
-prompt_list = []
+
 
 
 def get_session():
@@ -25,7 +25,7 @@ def get_session():
 
     return session_info
 
-
+prompt_list = []
 def image_generator(file_name, n, raw_prompt, size):
     edit_prompt = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -40,8 +40,9 @@ def image_generator(file_name, n, raw_prompt, size):
             },
         ],
     )
+
     prompt = edit_prompt["choices"][0]["message"]["content"]
-    prompt_list.append(raw_prompt)
+    prompt_list.append(prompt)
     request = openai.Image.create(
         prompt=prompt,
         n=n,
@@ -52,6 +53,7 @@ def image_generator(file_name, n, raw_prompt, size):
     image_data = requests.get(image_data_url).content
     with open(file_name, "wb") as f:
         f.write(image_data)
+    return prompt_list    
 
 
 def generate_other_images(file_path, n, size):
@@ -71,7 +73,7 @@ def generate_other_images(file_path, n, size):
     return images_url_list, image_data, images
 
 
-def generate_improved_image(improved_file_name, raw_prompt, size):
+def generate_improved_image(improved_file_name, raw_prompt, size,prompt_list):
     improved_prompt = f"transform, change, add or improve from {prompt_list} to {raw_prompt}"
     image_generator(improved_file_name, 1, improved_prompt, size)
 
