@@ -84,22 +84,18 @@ size = st.selectbox('生成する画像のサイズを選んでください', si
 if st.button('画像生成'):
     col = st.columns(n)
     image_generator(file_name, 1, raw_prompt, size)
-    images_url_list, image_data, image = generate_other_images(
-        file_name, n, size)
+    images_url_list, image_data, image = generate_other_images(file_name, n, size)
     counter = 0
     for i in range(1, n+1):
         with open(f'image{counter+1}.png', 'wb') as f:
             f.write(image_data[counter])
-            st.image(f'image{i}.png', caption=f'サンプル{i}',
-                     use_column_width=True)
+            st.image(f'image{i}.png', caption=f'サンプル{i}', use_column_width=True)
             counter += 1
     st.session_state.generated_images = images_url_list
 
 if 'generated_images' in st.session_state:
     if st.button('改善された画像を生成'):
-        improved_images_url_list, improved_image_data = generate_improved_image(
-            st.session_state.generated_images[-1], 1)
-        st.image(improved_image_data[0],
-                 caption="改善された画像", use_column_width=True)
+        improved_images_url_list, improved_image_data = generate_improved_image(st.session_state.generated_images[-1], 1, size)
+        st.image(improved_image_data[0], caption="改善された画像", use_column_width=True)
 else:
     st.session_state.generated_images = []
