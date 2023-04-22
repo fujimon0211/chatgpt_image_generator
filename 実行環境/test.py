@@ -95,7 +95,7 @@ def generate_improved_image(improved_file_name, raw_prompt, size):
 size_box = ['256x256', '512x512', '1024x1024']
 st.title("ChatGPT画像生成ジェネレーター")
 st.header('入力した内容に即した画像を生成します')
-raw_prompt = st.text_input(
+raw_prompt = st.text_area(
     "生成したい画像を説明する文章を具体的に入力してください\n"
     "(何度も同じ文章で生成することで精度が上がります。)", "")
 n = st.number_input('生成したい画像の数を入力してください(1~20)', 1, 20)
