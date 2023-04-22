@@ -60,9 +60,9 @@ def image_generator(n, raw_prompt, size):
         f.write(image_data)
 
 
-def generate_other_images(file_path, n, size):
+def generate_other_images(n, size):
     various_requests = openai.Image.create_variation(
-        image=open(file_path, "rb"),
+        image=open(image.png, "rb"),
         n=n,
         size=size
     )
@@ -87,15 +87,15 @@ def generate_improved_image(improved_file_name, raw_prompt, size):
 size_box = ['256x256', '512x512', '1024x1024']
 st.title("ChatGPT画像生成ジェネレーター")
 st.header('入力した内容に即した画像を生成します')
-raw_prompt = st.text_input("生成したい画像を説明する文章を具体的に入力してください(何度も同じ文章で生成することで精度が上がります。)", "")
+raw_prompt = st.text_input(
+    "生成したい画像を説明する文章を具体的に入力してください(何度も同じ文章で生成することで精度が上がります。)", "")
 n = st.number_input('生成したい画像の数を入力してください(1~20)', 1, 20)
 size = st.selectbox('生成する画像のサイズを選んでください', size_box)
 
 if st.button('画像生成'):
     col = st.columns(n)
-    image_generator(file_name, 1, raw_prompt, size)
-    images_url_list, image_data, image = generate_other_images(
-        file_name, n, size)
+    image_generator(1, raw_prompt, size)
+    images_url_list, image_data, image = generate_other_images(n, size)
     counter = 0
     for i in range(1, n+1):
         with open(f'image{counter+1}.png', 'wb') as f:
@@ -104,5 +104,3 @@ if st.button('画像生成'):
                      use_column_width=True)
             counter += 1
     st.session_state.generated_images = images_url_list
-
-
