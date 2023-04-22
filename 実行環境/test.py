@@ -97,7 +97,7 @@ if st.button('画像生成'):
 
 if 'generated_images' in st.session_state:
     if st.button('改善された画像を生成'):
-        improved_images_url_list, improved_image_data = generate_improved_images(
+        improved_images_url_list, improved_image_data = generate_improved_image(
             st.session_state.generated_images[-1], 1)
         st.image(improved_image_data[0],
                  caption="改善された画像", use_column_width=True)
