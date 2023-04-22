@@ -79,7 +79,7 @@ def generate_other_images(file_path, n, size):
 
 def generate_improved_image(improved_file_name, raw_prompt, size):
     make_prompt(raw_prompt)[1][0]
-    improved_prompt = f"transform, change, add or improve to {raw_prompt+make_prompt(raw_prompt)[1][0]} "
+    improved_prompt = f"{raw_prompt+make_prompt(raw_prompt)[1][0]} "
     image_generator(improved_file_name, 1, improved_prompt, size)
 
 
@@ -108,7 +108,7 @@ if st.button('画像生成'):
 if 'generated_images' in st.session_state:
     if st.button('改善された画像を生成'):
         for i in range(1, n+1):
-            improved_images_url_list, improved_image_data = generate_improved_image(
+            generate_improved_image(
                 f'image{i}.png', raw_prompt, size)
             st.image(f'image{i}.png',
                      caption="改善された画像", use_column_width=True)
