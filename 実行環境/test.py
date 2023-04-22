@@ -11,6 +11,34 @@ from dotenv import load_dotenv
 openai.organization = st.secrets['ChatGPT_organization_key']
 openai.api_key = st.secrets['ChatGPT_API_key']
 
+
+def image_generator(file_name, n, raw_prompt, size):
+    edit_prompt = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "system",
+                "content": "Please translate the input in Japanese into English and output it in an easily understandable form as a prompt for image generation."
+            },
+            {
+                "role": "user",
+                "content": raw_prompt
+            },
+        ],
+    )
+    prompt = edit_prompt["choices"][0]["message"]["content"]
+    request = openai.Image.create(
+        prompt=prompt,
+        n=n,
+        size=size,
+        response_format='url'
+    )
+    image_data_url = request['data'][0]['url']
+    image_data = requests.get(image_data_url).content
+    with open(file_name, "wb") as f:  # Save generated image
+        f.write(image_data)
+
+
 def generate_improved_image(file_name, raw_prompt, size):
     edit_prompt = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -37,8 +65,23 @@ def generate_improved_image(file_name, raw_prompt, size):
     with open(file_name, "wb") as f:
         f.write(image_data)
 
-# Existing functions
-# ...
+
+def generate_other_images(file_name, n, size):
+    various_requests = openai.Image.create_variation(
+        image=open(file_name, "rb"),
+        n=n,
+        size=size
+    )
+    images = various_requests['data']
+    counter = 0
+    images_url_list = []
+    image_data = []
+    for image in images:
+        images_url_list.append(image['url'])
+        image_data.append(requests.get(images_url_list[counter]).content)
+        counter += 1
+    return images_url_list, image_data, images
+
 
 size_box = ['256x256', '512x512', '1024x1024']
 
@@ -51,16 +94,21 @@ size = st.selectbox('生成する画像のサイズを選んでください', si
 
 if st.button('画像生成'):
     col = st.columns(n)
-    image_generator(file_name, 1, raw_prompt, size)
-    images_url_list, image_data, image = generate_other_images(file_name, n, size)
+    image_generator(file_name, n, raw_prompt, size)
+    image_data = []
+    for i in range(n):
+        with open(f'image{i+1}.png', 'rb') as f:
+            image_data.append(f.read())
+
     counter = 0
     for i in range(1, n+1):
         with open(f'image{counter+1}.png', 'wb') as f:
             f.write(image_data[counter])
-            st.image(f'image{i}.png', caption=f'サンプル{i}', use_column_width=True)
+            st.image(f'image{i}.png', caption=f'サンプル{i}',
+                     use_column_width=True)
             counter += 1
 
-    if st.button('改善した画像を生成'):
-        improved_file_name = f"improved_{file_name}"
+    if st.button('改善された画像を生成'):
+        improved_file_name = f'improved_{file_name}'
         generate_improved_image(improved_file_name, raw_prompt, size)
-        st.image(improved_file_name, caption="改善した画像", use_column_width=True)
+        st.image(improved_file_name, caption='改善された画像', use_column_width=True)
