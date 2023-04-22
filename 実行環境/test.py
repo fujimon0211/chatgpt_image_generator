@@ -3,12 +3,10 @@ import openai
 import requests
 import streamlit as st
 from PIL import Image
+import os
 import io
 import sys
 from dotenv import load_dotenv
-from streamlit.report_thread import add_report_ctx
-from streamlit.hashing import _CodeHasher
-from streamlit.state.session_state import SessionState
 
 # Load API key
 openai.organization = st.secrets['ChatGPT_organization_key']
