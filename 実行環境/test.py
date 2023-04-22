@@ -105,7 +105,7 @@ if 'generated_images' in st.session_state:
     if st.button('改善された画像を生成'):
         for i in range(1, n+1):
             improved_images_url_list, improved_image_data = generate_improved_image(
-                f'image{i}.png', 1, size)
+                f'image{i}.png', raw_prompt, size)
             st.image(f'image{i}.png',
                      caption="改善された画像", use_column_width=True)
 else:
