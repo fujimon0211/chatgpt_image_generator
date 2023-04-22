@@ -72,7 +72,7 @@ def generate_other_images(file_path, n, size):
 
 
 def generate_improved_image(improved_file_name, raw_prompt, size):
-    improved_prompt = f"transform, change, add or improve from {prompt_list[-1]} to {raw_prompt}"
+    improved_prompt = f"transform, change, add or improve from {prompt_list} to {raw_prompt}"
     image_generator(improved_file_name, 1, improved_prompt, size)
 
 
