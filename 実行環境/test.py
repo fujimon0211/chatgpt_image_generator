@@ -62,7 +62,7 @@ def image_generator(n, raw_prompt, size):
 
 def generate_other_images(n, size):
     various_requests = openai.Image.create_variation(
-        image=open(image.png, "rb"),
+        image=open('image.png', "rb"),
         n=n,
         size=size
     )
