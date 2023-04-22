@@ -7,16 +7,16 @@ import os
 import io
 import sys
 from dotenv import load_dotenv
-#load_dotenv() ローカルでのみ使用
+# load_dotenv() ローカルでのみ使用
 # 自身の API キーを指定
-#openai.organization = os.getenv('ChatGPT_organization_key')　ローカルでのみ使用
-#openai.api_key = os.getenv('ChatGPT_API_key')　ローカルでのみ使用
+# openai.organization = os.getenv('ChatGPT_organization_key')　ローカルでのみ使用
+# openai.api_key = os.getenv('ChatGPT_API_key')　ローカルでのみ使用
 openai.organization = st.secrets['ChatGPT_organization_key']
 openai.api_key = st.secrets['ChatGPT_API_key']
 
+
 def image_generator(file_name, n, raw_prompt, size):
 
-   
     edit_prompt = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
