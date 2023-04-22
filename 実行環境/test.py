@@ -7,57 +7,35 @@ import os
 import io
 import sys
 from dotenv import load_dotenv
-# load_dotenv() #ローカルでのみ使用
-# 自身の API キーを指定
-# openai.organization = os.getenv('ChatGPT_organization_key')#ローカルでのみ使用
-# openai.api_key = os.getenv('ChatGPT_API_key')#ローカルでのみ使用
+
+# load_dotenv() # For local use only
+# Set your API keys
 openai.organization = st.secrets['ChatGPT_organization_key']
 openai.api_key = st.secrets['ChatGPT_API_key']
-last_prompt = []
 
+def generate_translation(prompt):
+    conversation_history = [
+        {"role": "system", "content": "Please translate the input in Japanese into English and output it in an easily understandable form as a prompt for image generation."},
+        {"role": "user", "content": prompt}
+    ]
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=conversation_history,
+        max_tokens=150,
+        n=1,
+        stop=None,
+        temperature=0.7,
+    )
+
+    translation = response.choices[0].message["content"]
+    return translation
 
 def image_generator(file_name, n, raw_prompt, size):
-    if not last_prompt:
-        edit_prompt = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Please translate the input in Japanese into English and output it in an easily understandable form as a prompt for image generation."
-                },
-                {
-                    "role": "user",
-                    "content": raw_prompt
-                },
-
-
-            ],
-        )
-        prompt = edit_prompt["choices"][0]["message"]["content"]
-        last_prompt.append(prompt)
-    edit_prompt = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {
-                "role": "system",
-                "content": "Please translate the input in Japanese into English and output it in an easily understandable form as a prompt for image generation."
-            },
-            {
-                "role": "user",
-                "content": raw_prompt
-            },
-            {
-                "role": "assistant",
-                "content": last_prompt
-            }
-
-
-        ],
-    )
-    prompt = edit_prompt["choices"][0]["message"]["content"]
-    last_prompt.append(prompt)
+    translated_prompt = generate_translation(raw_prompt)
+    
     request = openai.Image.create(
-        prompt=prompt,
+        prompt=translated_prompt,
         n=n,
         size=size,
         response_format='url'
@@ -65,9 +43,8 @@ def image_generator(file_name, n, raw_prompt, size):
     image_data_url = request['data'][0]['url']
 
     image_data = requests.get(image_data_url).content
-    with open(file_name, "wb") as f:  # 生成画像を保存
+    with open(file_name, "wb") as f:  # Save the generated image
         f.write(image_data)
-
 
 def generate_other_images(file_name, n, size):
     various_requests = openai.Image.create_variation(
@@ -85,9 +62,8 @@ def generate_other_images(file_name, n, size):
         counter += 1
     return images_url_list, image_data, images
 
-
 size_box = ['256x256', '512x512', '1024x1024']
-#image_generator("trial.png", 1, "夜のビッグベン", "512x512")
+
 st.title("ChatGPT画像生成ジェネレーター")
 st.header('入力した内容に即した画像を生成します')
 raw_prompt = st.text_input("生成したい画像を説明する文章を具体的に入力してください", "")
