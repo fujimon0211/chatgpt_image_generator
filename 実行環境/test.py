@@ -7,6 +7,7 @@ import os
 import io
 import sys
 from dotenv import load_dotenv
+import base64
 
 # Load API key
 openai.organization = st.secrets['ChatGPT_organization_key']
@@ -14,6 +15,11 @@ openai.api_key = st.secrets['ChatGPT_API_key']
 
 prompt_list = []
 
+def get_image_download_link(img_path, filename, text="Download"):
+    with open(img_path, "rb") as image_file:
+        img_data = image_file.read()
+    b64 = base64.b64encode(img_data).decode()
+    return f'<a href="data:image/png;base64,{b64}" download="{filename}">{text}</a>'
 
 def get_session():
     ctx = get_report_ctx()
@@ -102,5 +108,6 @@ if st.button('画像生成'):
             f.write(image_data[counter])
             st.image(f'image{i}.png', caption=f'サンプル{i}',
                      use_column_width=True)
+            st.markdown(get_image_download_link(f'image{i}.png', f'download_image{i}.png', text="画像をダウンロード"), unsafe_allow_html=True)
             counter += 1
     st.session_state.generated_images = images_url_list
